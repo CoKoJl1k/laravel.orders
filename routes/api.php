@@ -19,6 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/requests', [OrderController::class, 'index']);
-Route::put('/requests/{id}',  [OrderController::class, 'update']);
-Route::post('/requests',  [OrderController::class, 'store']);
+Route::get('/orders', [OrderController::class, 'index']);
+Route::put('/orders/{id}',  [OrderController::class, 'update']);
+Route::post('/orders',  [OrderController::class, 'store']);
