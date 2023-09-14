@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ReplyEmail;
 use App\Models\Order;
 use App\Services\OrdersService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
 {
@@ -40,7 +42,10 @@ class OrderController extends Controller
 
         try {
             $order->save();
-            // Отправить email пользователю с ответом
+
+            $replyEmail = new ReplyEmail($order->name, $order->id, 'Ответ по заявке', 'emails.replyOrderEmail', $order->comment);
+            Mail::to($order->email)->send($replyEmail);
+
             return response()->json($order, 201);
         } catch (\Exception $e){
             return response()->json(['status' => 'fail', 'message' => $e->getMessage()], 400);
@@ -61,7 +66,10 @@ class OrderController extends Controller
 
         try {
             $order->save();
-            // Отправить email пользователю с подтверждением получения заявки
+
+            $replyEmail = new ReplyEmail($order->name, $order->id, 'Создание заявки', 'emails.createOrderEmail');
+            Mail::to($order->email)->send($replyEmail);
+
             return response()->json($order, 201);
         } catch (\Exception $e){
             return response()->json(['status' => 'fail', 'message' => $e->getMessage()], 400);
