@@ -14,7 +14,7 @@ class OrderController extends Controller
 {
     public OrdersService $ordersService;
 
-    public function __construct(OrdersService $ordersService
+    public function __construct(OrdersService $ordersService)
     {
         $this->ordersService = $ordersService;
     }
