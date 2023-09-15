@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Mail\ReplyEmail;
 use App\Models\Order;
+use App\Models\User;
 use App\Services\JWTService;
 use App\Services\OrdersService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -13,22 +15,32 @@ use Illuminate\Support\Facades\Mail;
 class OrderController extends Controller
 {
     public OrdersService $ordersService;
+    public JWTService $jwtService;
 
-    public function __construct(OrdersService $ordersService)
+    public function __construct(OrdersService $ordersService,JWTService $jwtService)
     {
         $this->ordersService = $ordersService;
+        $this->jwtService = $jwtService;
     }
 
-
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request)
     {
         $status = $request->query('status');
         $orders = Order::when($status, function ($query, $status) {
             return $query->where('status', $status);
         })->get();
-
         return response()->json($orders);
     }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return JsonResponse
+     */
 
     public function update(Request $request, $id)
     {
@@ -36,10 +48,16 @@ class OrderController extends Controller
         if(!empty($errors['message'])) {
             return response()->json(['status' => 'fail', 'message' => $errors['message']], 400);
         }
-        $order = Order::findOrFail($id);
-        $order->status = 'Resolved';
-        $order->comment = $request->input('comment');
-        $order->updated_at = now();
+        $user = $this->jwtService->getUserByToken($request);
+
+        if ($user->role === 'admin')  {
+            $order = Order::findOrFail($id);
+            $order->status = 'Resolved';
+            $order->comment = $request->input('comment');
+            $order->updated_at = now();
+        } else {
+            return response()->json(['status' => 'fail', 'message' => 'You dont have permission.'], 401);
+        }
 
         try {
             $order->save();
@@ -53,6 +71,11 @@ class OrderController extends Controller
         }
 
     }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
 
     public function store(Request $request )
     {

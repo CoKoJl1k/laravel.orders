@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Services\JWTService;
 use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,8 +23,12 @@ class AuthController extends Controller
         $this->jwtService = $jwtService;
     }
 
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
 
-    public function register(Request $request): \Illuminate\Http\JsonResponse
+    public function register(Request $request)
     {
         $errors = $this->userService->validateRegister($request);
         if(!empty($errors['message'])) {
@@ -51,6 +56,11 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
 
     public function login(Request $request)
     {
