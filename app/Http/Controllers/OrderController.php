@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Mail\ReplyEmail;
 use App\Models\Order;
-use App\Models\User;
 use App\Services\JWTService;
 use App\Services\OrdersService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class OrderController extends Controller
@@ -27,6 +25,7 @@ class OrderController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
+
     public function index(Request $request)
     {
         $status = $request->query('status');
@@ -77,7 +76,7 @@ class OrderController extends Controller
      * @return JsonResponse
      */
 
-    public function store(Request $request )
+    public function store(Request $request)
     {
         $errors = $this->ordersService->validateStore($request);
         if(!empty($errors['message'])) {
@@ -90,7 +89,6 @@ class OrderController extends Controller
 
         try {
             $order->save();
-
             $replyEmail = new ReplyEmail($order->name, $order->id, 'Создание заявки', 'emails.createOrderEmail');
             Mail::to($order->email)->send($replyEmail);
 

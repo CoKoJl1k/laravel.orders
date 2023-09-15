@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class JWTService
 {
-    protected $secretKey;
+    protected string $secretKey;
 
     public function __construct()
     {
@@ -22,21 +22,27 @@ class JWTService
      * @param int $expiration
      * @return string
      */
-    public function generateToken(array $payload, int $expiration = 36000): string
+
+    public function generateToken(array $payload, int $expiration = 36000)
     {
         $payload['created'] = time();
         $payload['expire'] = time() + $expiration;
         return JWT::encode($payload, $this->secretKey,'HS256');
     }
 
-    public function decodeToken(string $token): object
+    /**
+     * @param string $token
+     * @return object
+     */
+
+    public function decodeToken(string $token)
     {
         return JWT::decode($token, new Key($this->secretKey, 'HS256'));
     }
 
     /**
      * @param Request $request
-     * @return array|string|string[]|null
+     * @return array|string|null
      */
 
     public function getToken(Request $request)
